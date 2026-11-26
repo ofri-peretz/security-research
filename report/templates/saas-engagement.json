@@ -1,0 +1,152 @@
+{
+  "$comment": "Starting point for a SaaS or platform engagement. See docs/standards/saas-assessment.md. The report refuses to build while any coverage entry is still \"not-tested\": test it, mark it pass/fail (fail names its findings), or mark it n/a or out-of-scope with a reason. Split a domain into more entries as you test.",
+  "title": "Security assessment: <product>",
+  "client": "<client legal name>",
+  "reportVersion": "1.0",
+  "issueDate": "YYYY-MM-DD",
+  "confidentiality": "Confidential: prepared for <client>. Do not distribute without written consent.",
+  "target": {
+    "name": "<product / environment>",
+    "version": "<commit SHA, release tag or deployment id>"
+  },
+  "boundary": "<hosts, APIs, cloud accounts, repos and tenants in scope>",
+  "type": "Point in time",
+  "period": {
+    "start": "YYYY-MM-DD",
+    "end": "YYYY-MM-DD"
+  },
+  "tester": {
+    "name": "<tester / firm>",
+    "independence": "<who the tester is, and their relationship to the code's authors>"
+  },
+  "methodology": "Grey-box testing following OWASP WSTG v4.2 and ASVS 5.0.0, with two tenants and three roles each, plus code and configuration review where access was granted. Process per NIST SP 800-115.",
+  "rulesOfEngagement": "<signed authorization reference; environments; test windows; no DoS without a waiver; data handling; stop conditions; escalation contact>",
+  "levelOfEffort": "<testers × days>",
+  "timeline": [
+    {
+      "date": "YYYY-MM-DD",
+      "event": "Kick-off and scoping questionnaire returned"
+    }
+  ],
+  "summary": "<three to five sentences a non-technical reader can act on>",
+  "strategicRecommendations": [],
+  "positiveObservations": [],
+  "standards": [
+    {
+      "name": "OWASP WSTG",
+      "edition": "v4.2",
+      "url": "https://owasp.org/www-project-web-security-testing-guide/",
+      "use": "Test cases"
+    },
+    {
+      "name": "OWASP ASVS",
+      "edition": "5.0.0",
+      "url": "https://owasp.org/www-project-application-security-verification-standard/",
+      "use": "Requirements"
+    },
+    {
+      "name": "OWASP API Security Top 10",
+      "edition": "2023",
+      "url": "https://owasp.org/www-project-api-security/",
+      "use": "API risk categories"
+    },
+    {
+      "name": "CVSS",
+      "edition": "v4.0",
+      "url": "https://www.first.org/cvss/v4-0/",
+      "use": "Severity"
+    },
+    {
+      "name": "SOC 2 Trust Services Criteria",
+      "edition": "2017, revised points of focus 2022",
+      "use": "Criteria this evidence supports (tester's mapping)"
+    }
+  ],
+  "tools": [],
+  "coverage": [
+    {
+      "id": "D-01",
+      "ref": "WSTG-INFO, WSTG-CONF",
+      "test": "External attack surface: subdomains, exposed storage, staging hosts, TLS and headers, internet-reachable admin panels",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-02",
+      "ref": "WSTG-ATHN",
+      "test": "Authentication, SSO and MFA: lockout, MFA bypass, SAML signature wrapping, OIDC state/nonce/redirect URI, password reset tokens",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-03",
+      "ref": "WSTG-SESS",
+      "test": "Session management: entropy, rotation, server-side logout, cookie flags, fixation",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-04",
+      "ref": "API1, API5, WSTG-ATHZ",
+      "test": "Authorization and tenant isolation: every object ID swapped across tenants A and B for read, write and delete; role escalation; cross-tenant leaks via search, export and webhooks",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-05",
+      "ref": "API3, API4, API9, WSTG-APIT",
+      "test": "API security: mass assignment, rate limits on costly operations, old and undocumented versions, CORS",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-06",
+      "ref": "WSTG-INPV, WSTG-CLNT, API7",
+      "test": "Input handling: injection, stored and DOM XSS, uploads, XXE, path traversal, SSRF",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-07",
+      "ref": "WSTG-BUSL, API6",
+      "test": "Business logic: pricing and coupons, step skipping, races on limits and credits, plan abuse",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-08",
+      "ref": "WSTG-CRYP, V13.3.1",
+      "test": "Secrets and keys: secrets in repos, images, bundles and logs; rotation; separation by tenant and environment",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-09",
+      "ref": "CIS, CCM",
+      "test": "Cloud configuration: IAM wildcards, public storage, exposed network rules, logging and encryption, admin MFA",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-10",
+      "ref": "SLSA v1.2, Scorecard",
+      "test": "CI/CD and supply chain: branch protection, provenance, pinned dependencies and actions, OIDC instead of static keys, signing",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-11",
+      "ref": "CCM logging and monitoring",
+      "test": "Logging, monitoring and IR: security events logged, log integrity, alert routing, credential-leak tabletop",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-12",
+      "ref": "WSTG-CRYP, CCM data security",
+      "test": "Data protection: TLS and HSTS, encryption at rest and in backups, tenant deletion, retention vs. policy",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-13",
+      "ref": "WSTG-IDNT, API7",
+      "test": "Third parties, webhooks and OAuth apps: scopes, redirect URI and PKCE, token storage, webhook signatures and replay, revocation",
+      "result": "not-tested"
+    },
+    {
+      "id": "D-14",
+      "ref": "LLM01, LLM06, LLM07, MCP Top 10",
+      "test": "AI and LLM features: prompt injection, tool permissions, prompt leakage, output into sinks, tenant isolation in retrieval",
+      "result": "not-tested"
+    }
+  ]
+}

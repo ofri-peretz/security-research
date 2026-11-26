@@ -19,6 +19,20 @@ node report/cli.mjs --sarif results.sarif --engagement engagement.json \
 - **`--log`**: retest output. A `retested` finding names the log section and the line it
   expects there.
 
+**v2 fields** (spec: [docs/specs/2026-11-26-report-v2-saas.md](../docs/specs/2026-11-26-report-v2-saas.md)):
+
+- **Each finding:** `difficulty`, `exploitScenario`, `remediation.shortTerm` / `longTerm` /
+  `owner` / `targetDate`, optional `chainsWith`, and optional `reproducibility` for AI
+  findings.
+- **Fixes:** `fix.kind` is `client` (needs a commit later than the tested version) or
+  `reference` (rendered as "Reference fix verified", never as a client retest). A retest needs
+  `retest.by` and evidence.
+- **The engagement:** `issueDate`, `confidentiality`, `rulesOfEngagement`, `levelOfEffort`,
+  a dated `timeline`, `revisions`, `strategicRecommendations`, `positiveObservations`,
+  and `coverage` (every test with pass / fail / n/a / out-of-scope).
+- **New SaaS engagement:** start from [templates/saas-engagement.json](templates/saas-engagement.json).
+  It refuses to build until every one of its 14 domains is tested or scoped out with a reason.
+
 It refuses to build (exit 1, nothing written) on:
 
 - a CWE that is a Pillar, a view, unknown, or Discouraged/Prohibited

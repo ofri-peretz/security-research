@@ -83,6 +83,7 @@ function start(id) {
   console.log(bold(`\n${ch.id}: ${ch.title}`) + dim(`  (L${ch.level}, ${base(ch)} XP)`));
   console.log(`Brief: ${path.relative(process.cwd(), path.join(ch.dir, 'README.md'))}\n`);
   const child = spawn(process.execPath, [path.join(ch.dir, 'server.mjs')], { stdio: 'inherit' });
+  child.on('error', (err) => { console.error(err.message); process.exit(1); });
   child.on('exit', (code) => process.exit(code ?? 0));
 }
 
@@ -97,6 +98,7 @@ function submit(id, flag) {
     process.exitCode = 1;
     return;
   }
+  // eslint-disable-next-line secure-coding/detect-object-injection -- id passed findChallenge(), which throws unless it is an exact catalog id (plugin FP: guard is in another function)
   p.solves[id] = new Date().toISOString();
   p.log.push({ at: p.solves[id], id, event: 'solved', hints: p.hints[id] ?? 0 });
   save(p);
@@ -114,6 +116,7 @@ function hint(id) {
     hints.forEach((h, i) => console.log(`${i + 1}. ${h}`));
     return console.log(dim('No more hints. The writeup is in solutions/.'));
   }
+  // eslint-disable-next-line secure-coding/detect-object-injection -- id passed findChallenge(), which throws unless it is an exact catalog id (plugin FP: guard is in another function)
   if (!p.solves[id]) p.hints[id] = used + 1; // hints after solving are free
   p.log.push({ at: new Date().toISOString(), id, event: 'hint', n: used + 1 });
   save(p);
@@ -140,6 +143,7 @@ async function fix(id) {
     }
     const p = load();
     const first = !p.fixes[id];
+    // eslint-disable-next-line secure-coding/detect-object-injection -- id passed findChallenge(), which throws unless it is an exact catalog id (plugin FP: guard is in another function)
     p.fixes[id] = new Date().toISOString();
     p.log.push({ at: p.fixes[id], id, event: 'fixed' });
     save(p);

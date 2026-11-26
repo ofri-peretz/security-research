@@ -1,0 +1,54 @@
+{
+  "$comment": "What our ESLint plugins must report on each protocol-ctf lab. rootCauseRule: the rule that must fire on the vulnerable server (null = a known recall gap, listed in docs/SCANNER-RESULTS.md). fixedHits: the exact rule ids allowed on the fixed server, each with why. Any change in either direction fails, so this file moves only on purpose.",
+  "labs": {
+    "ai-1": {
+      "rootCauseRule": "node-security/no-shell-injection",
+      "fixedHits": {
+        "node-security/require-secure-credential-storage": "true positive in a lab fixture: the server puts its own token in process.env"
+      }
+    },
+    "ai-2": {
+      "rootCauseRule": null,
+      "gap": "toy model, no SDK to match",
+      "fixedHits": {}
+    },
+    "ai-3": {
+      "rootCauseRule": null,
+      "gap": "toy model, no SDK to match",
+      "fixedHits": {}
+    },
+    "grpc-1": {
+      "rootCauseRule": null,
+      "gap": "trusted identity metadata (CWE-290)",
+      "fixedHits": {}
+    },
+    "grpc-2": {
+      "rootCauseRule": null,
+      "gap": "reflection on a public listener (CWE-306)",
+      "fixedHits": {}
+    },
+    "grpc-3": {
+      "rootCauseRule": "node-security/detect-eval-with-expression",
+      "fixedHits": {}
+    },
+    "ws-1": {
+      "rootCauseRule": null,
+      "gap": "per-message authorization (CWE-639)",
+      "fixedHits": {
+        "secure-coding/no-hardcoded-credentials": "true positive in a lab fixture: guest/guest user",
+        "secure-coding/no-insecure-comparison": "true positive: password compared with !==, outside the lab's lesson"
+      }
+    },
+    "ws-2": {
+      "rootCauseRule": null,
+      "gap": "Origin as auth, unanchored regex (CWE-290/1385)",
+      "fixedHits": {}
+    },
+    "ws-3": {
+      "rootCauseRule": "secure-coding/detect-object-injection",
+      "fixedHits": {
+        "secure-coding/detect-object-injection": "FALSE POSITIVE: ignores the FORBIDDEN.has(key) + continue guard; fix in progress in the eslint repo"
+      }
+    }
+  }
+}

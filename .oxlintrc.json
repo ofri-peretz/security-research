@@ -1,0 +1,3 @@
+{
+  "ignorePatterns": ["protocol-ctf/challenges/**", "protocol-ctf/solutions/**"]
+}

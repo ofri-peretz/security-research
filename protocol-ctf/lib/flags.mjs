@@ -11,8 +11,11 @@ const SECRET_FILE = path.join(STATE_DIR, 'secret');
 
 function secret() {
   fs.mkdirSync(STATE_DIR, { recursive: true });
-  if (!fs.existsSync(SECRET_FILE)) {
-    fs.writeFileSync(SECRET_FILE, crypto.randomBytes(32).toString('hex'), { mode: 0o600 });
+  try {
+    // 'wx' creates it only if absent, so two servers starting at once can't write different secrets.
+    fs.writeFileSync(SECRET_FILE, crypto.randomBytes(32).toString('hex'), { mode: 0o600, flag: 'wx' });
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err;
   }
   return fs.readFileSync(SECRET_FILE, 'utf8').trim();
 }

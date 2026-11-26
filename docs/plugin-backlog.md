@@ -60,15 +60,16 @@ The 2026-11-26 hunt of `mcp-remote@0.1.15`:
 
 ## False positives
 
-| Rule                                        | Where                                                   | What the rule misses                                       | Status                                          |
-| ------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------- |
-| `secure-coding/detect-object-injection`     | `protocol-ctf/solutions/ws-3/fixed-server.mjs:17`       | `Set.has(key)` denylist of prototype keys + `continue`     | Fix in progress (session started 2026-11-26)    |
-| `secure-coding/no-improper-sanitization`    | `protocol-ctf/challenges/websockets/ws-2/server.mjs:36` | `ws.send(JSON.stringify(...))` isn't an HTML sink          | Fix in progress (same session)                  |
-| `secure-coding/detect-object-injection` ×3  | `protocol-ctf/ctf.mjs` (`p.solves[id]` etc.)            | Key validated by a lookup that throws, in another function | Open; probably accept as a cross-function limit |
-| `secure-coding/detect-object-injection`     | `report/cvss.mjs` (`selected[k]`)                       | `keys.indexOf(k) < 0` early return is an allowlist guard   | Open                                            |
-| `secure-coding/detect-object-injection`     | `report/build-cwe.mjs` (`entries[id]`)                  | Key is a `\d+` regex capture, so a numeric string          | Open                                            |
-| `secure-coding/no-unchecked-loop-condition` | `protocol-ctf/lib/http.mjs:4`                           | `for await` body throws past a size limit, so it's bounded | Open                                            |
-| `node-security/no-arbitrary-file-access`    | `report/build-cwe.mjs`                                  | Path is a CLI argument in a dev script                     | Open; arguably by design                        |
+| Rule                                        | Where                                                   | What the rule misses                                                                                                                           | Status                                                  |
+| ------------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `secure-coding/detect-object-injection`     | `protocol-ctf/solutions/ws-3/fixed-server.mjs:17`       | `Set.has(key)` denylist of prototype keys + `continue`                                                                                         | Fix in progress (session started 2026-11-26)            |
+| `secure-coding/no-improper-sanitization`    | `protocol-ctf/challenges/websockets/ws-2/server.mjs:36` | `ws.send(JSON.stringify(...))` isn't an HTML sink                                                                                              | Fix in progress (same session)                          |
+| `secure-coding/detect-object-injection` ×3  | `protocol-ctf/ctf.mjs` (`p.solves[id]` etc.)            | Key validated by a lookup that throws, in another function                                                                                     | Open; probably accept as a cross-function limit         |
+| `secure-coding/detect-object-injection`     | `report/cvss.mjs` (`selected[k]`)                       | `keys.indexOf(k) < 0` early return is an allowlist guard                                                                                       | Open                                                    |
+| `secure-coding/detect-object-injection`     | `report/build-cwe.mjs` (`entries[id]`)                  | Key is a `\d+` regex capture, so a numeric string                                                                                              | Open                                                    |
+| `secure-coding/no-unchecked-loop-condition` | `protocol-ctf/lib/http.mjs:4`                           | `for await` body throws past a size limit, so it's bounded                                                                                     | Open                                                    |
+| `secure-coding/detect-object-injection`     | `scripts/engagement.mjs` (`commands[cmd]()`)            | `if (!Object.hasOwn(o, k)) fail(...)` where `fail` always exits isn't seen as a guard. The rule's own message lists `Object.hasOwn` as a guard | Open; worked around by putting the call inside the `if` |
+| `node-security/no-arbitrary-file-access`    | `report/build-cwe.mjs`                                  | Path is a CLI argument in a dev script                                                                                                         | Open; arguably by design                                |
 
 ## Wrong or contradictory messages
 

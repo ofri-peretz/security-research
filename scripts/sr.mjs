@@ -322,7 +322,7 @@ function lookups(f) {
   return { fixedOnNpm, ghsaPublished };
 }
 
-if (!commands[cmd])
+if (!Object.hasOwn(commands, cmd))
   fail(
     'usage: sr hunt|finding|report|disclosure|publish (see the header of scripts/sr.mjs)',
   );

@@ -13,6 +13,7 @@ export default [
       '**/node_modules/**',
       'protocol-ctf/challenges/**',
       'protocol-ctf/solutions/**',
+      'report/vendor/**',
     ],
   },
   {

@@ -14,10 +14,11 @@
     "format:check": "node scripts/format-changed.mjs",
     "lab-lint": "node scripts/lab-lint.mjs",
     "guard": "node scripts/open-finding-guard.mjs",
-    "test:scripts": "node --test \"scripts/*.test.mjs\"",
+    "test:scripts": "node --test \"scripts/*.test.mjs\" \"report/*.test.mjs\"",
     "secrets": "gitleaks git --redact --no-banner",
     "verify": "npm run test:scripts && npm run lab-lint && npm --prefix protocol-ctf run verify",
-    "ci:local": "npm run lint && npm run verify"
+    "ci:local": "npm run lint && npm run verify",
+    "report:dogfood": "node report/dogfood/build.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

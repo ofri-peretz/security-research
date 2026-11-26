@@ -18,7 +18,12 @@
     "secrets": "gitleaks git --redact --no-banner",
     "verify": "npm run test:scripts && npm run lab-lint && npm --prefix protocol-ctf run verify",
     "ci:local": "npm run lint && npm run verify",
-    "report:dogfood": "node report/dogfood/build.mjs"
+    "report:dogfood": "node report/dogfood/build.mjs",
+    "hunt": "node scripts/sr.mjs hunt",
+    "finding": "node scripts/sr.mjs finding",
+    "report-privately": "node scripts/sr.mjs report",
+    "disclosure": "node scripts/sr.mjs disclosure",
+    "publish-advisory": "node scripts/sr.mjs publish"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

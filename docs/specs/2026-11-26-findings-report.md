@@ -4,7 +4,7 @@ intent: docs/intents/2026-11-26-security-research-practice.md
 opened: 2026-11-26
 ---
 
-**Status:** draft: awaiting acceptance at Design→Build
+**Status:** accepted 2026-11-26 · **Next:** Build, starting with the repo gates
 
 # Findings report: spec
 

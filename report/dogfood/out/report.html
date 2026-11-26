@@ -78,6 +78,7 @@
 <h3>Strategic recommendations</h3><ul><li>Never pass client-influenced strings to a shell, an evaluator or a dynamic-code constructor. F-01 and F-06 share this root cause.</li><li>Derive identity only from verified credentials. Headers, metadata and Origin are client-controlled (F-04, F-08).</li><li>Check authorization on every message and object, not only at connection time (F-07).</li><li>Give AI agents only the tools their task needs, and keep secrets out of prompts (F-02, F-03).</li></ul>
 <h3>What is working well</h3><ul><li>Every server binds to 127.0.0.1 only, so none of the findings is reachable from the network in the lab as shipped.</li><li>Every vulnerability has an exploit, a negative control and a reference fix, checked by one command. That gives this assessment a reproducible evidence chain.</li><li>The flag secret is created with owner-only permissions (0600).</li></ul>
 
+
 <h2>Engagement</h2>
 <table class="kv">
   <tr><th>System boundary</th><td>The nine lab servers under protocol-ctf/challenges/ (WebSocket, gRPC and AI-agent tracks), each bound to 127.0.0.1. Remediation was assessed against the reference fixes in protocol-ctf/solutions/.</td></tr>

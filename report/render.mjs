@@ -82,7 +82,13 @@ const DIFFICULTY_GLOSSARY = [
   ],
 ];
 
-export function render({ engagement: e, sarif, findings: input, hashes = {} }) {
+export function render({
+  engagement: e,
+  sarif,
+  findings: input,
+  hashes = {},
+  changes,
+}) {
   const findings = enrich(input.findings);
   const byKey = new Map(resultsOf(sarif).map((r) => [r.key, r]));
   const count = (pred) => findings.filter(pred).length;
@@ -252,6 +258,17 @@ export function render({ engagement: e, sarif, findings: input, hashes = {} }) {
     .join('')}</ol>
 ${e.strategicRecommendations?.length ? `<h3>Strategic recommendations</h3>${list(e.strategicRecommendations)}` : ''}
 ${e.positiveObservations?.length ? `<h3>What is working well</h3>${list(e.positiveObservations)}` : ''}
+${
+  changes
+    ? `<h3>Changes since the previous assessment</h3>
+<p>Compared with the report issued ${esc(changes.previous.issueDate)} on <code>${esc(changes.previous.version)}</code>.</p>
+<table class="kv">
+  ${row('New', changes.new.map((id) => `<a href="#${esc(id)}">${esc(id)}</a>`).join(', ') || 'none')}
+  ${row('Resolved', changes.resolved.map(esc).join(', ') || 'none')}
+  ${row('Still open', changes.persisting.map((id) => `<a href="#${esc(id)}">${esc(id)}</a>`).join(', ') || 'none')}
+</table>`
+    : ''
+}
 
 <h2>Engagement</h2>
 <table class="kv">
@@ -354,5 +371,45 @@ ${
 </main>
 </body>
 </html>
+`;
+}
+
+/**
+ * A retest letter: one page an auditor can file, stating each finding's state after the client's
+ * fixes. Only findings with a retest attempt appear. Failed attempts show as still open.
+ */
+export function retestLetter({ engagement: e, findings: input, date }) {
+  const findings = enrich(input.findings).filter(
+    (f) => f.retestHistory?.length,
+  );
+  const latest = (f) => f.retestHistory.at(-1);
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Retest letter: ${esc(e.client)}</title>
+<style>
+  body { font: 15px/1.55 system-ui, sans-serif; color: #1a1d21; max-width: 46rem; margin: 2.5rem auto; padding: 0 1.25rem; }
+  h1 { color: #1f4e79; font-size: 1.6rem; } table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  th, td { text-align: left; vertical-align: top; padding: .4rem .55rem; border-bottom: 1px solid #d9dde3; } thead th { background: #f3f5f7; }
+  code { font: .85em ui-monospace, Menlo, monospace; background: #f3f5f7; padding: .05em .3em; }
+  @page { size: A4; margin: 18mm 16mm; }
+</style></head><body>
+<h1>Retest letter</h1>
+<p>${esc(date)}</p>
+<p>To ${esc(e.client)}:</p>
+<p>${esc(e.tester.name)} performed a security assessment of <strong>${esc(e.target.name)}</strong> at <code>${esc(e.target.version)}</code>
+between ${esc(e.period.start)} and ${esc(e.period.end)} (report issued ${esc(e.issueDate)}). We then retested the following findings
+against the fixes you deployed. The results are below.</p>
+<table>
+  <thead><tr><th>Finding</th><th>Severity</th><th>Retested against</th><th>Date</th><th>Result</th></tr></thead>
+  <tbody>${findings
+    .map((f) => {
+      const r = latest(f);
+      return `<tr><td>${esc(f.id)}. ${esc(f.title)}</td><td>${esc(f.severity)} ${f.score.toFixed(1)}</td><td><code>${esc(r.commit)}</code></td><td>${esc(r.date)}</td><td>${r.result === 'pass' ? 'Resolved' : 'Not resolved'}</td></tr>`;
+    })
+    .join('')}</tbody>
+</table>
+<p>A finding is resolved when the original exploit no longer works and the feature still behaves as intended.
+Findings not listed were not retested. This letter is not a SOC 2 report. Only a licensed CPA firm can issue one.</p>
+<p>${esc(e.tester.name)}</p>
+</body></html>
 `;
 }

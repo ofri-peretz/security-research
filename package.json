@@ -23,7 +23,8 @@
     "finding": "node scripts/sr.mjs finding",
     "report-privately": "node scripts/sr.mjs report",
     "disclosure": "node scripts/sr.mjs disclosure",
-    "publish-advisory": "node scripts/sr.mjs publish"
+    "publish-advisory": "node scripts/sr.mjs publish",
+    "engagement": "node scripts/engagement.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

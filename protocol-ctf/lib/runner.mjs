@@ -38,6 +38,10 @@ export function runScript(file, args = [], timeoutMs = 20_000) {
     child.stdout.on('data', (d) => (out += d));
     child.stderr.on('data', (d) => (out += d));
     const t = setTimeout(() => child.kill(), timeoutMs);
+    child.on('error', (err) => {
+      clearTimeout(t);
+      resolve({ code: -1, out: out + String(err) });
+    });
     child.on('exit', (code) => {
       clearTimeout(t);
       resolve({ code, out });

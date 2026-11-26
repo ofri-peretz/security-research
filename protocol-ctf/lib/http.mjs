@@ -1,6 +1,7 @@
 // Tiny JSON-over-HTTP helpers shared by the AI-track servers.
 export async function readJson(req, limit = 64 * 1024) {
   let body = '';
+  // eslint-disable-next-line secure-coding/no-unchecked-loop-condition -- bounded: throws once body exceeds limit (plugin FP: in-body size check not seen)
   for await (const chunk of req) { body += chunk; if (body.length > limit) throw new Error('too large'); }
   return body ? JSON.parse(body) : {};
 }

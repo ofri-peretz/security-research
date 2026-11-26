@@ -20,5 +20,5 @@ untrusted text reaches an agent that holds secrets and a public write channel.
 **What you are learning:** OWASP LLM01 Prompt Injection (indirect) chained with LLM06 Excessive
 Agency, which is the shape of most real agent bugs: the attacker never talks to the agent. They
 put text where the agent will read it (a web page, an issue, an email, an MCP tool result) and the
-agent's own tools do the damage. The "ignore instructions in <untrusted>" line is the defence most
+agent's own tools do the damage. The "ignore instructions in `<untrusted>`" line is the defence most
 teams ship. Watch it fail.

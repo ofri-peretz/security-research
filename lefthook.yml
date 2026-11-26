@@ -1,0 +1,31 @@
+# Git hooks, in the layout burgee and eslint use: commitlint on commit-msg, file-scoped checks
+# on pre-commit, and the full battery on pre-push so the PR goes up green.
+commit-msg:
+  commands:
+    commitlint:
+      run: npx --no -- commitlint --edit {1}
+
+pre-commit:
+  parallel: true
+  commands:
+    open-finding-guard:
+      run: node scripts/open-finding-guard.mjs --staged
+    secrets:
+      run: gitleaks git --staged --redact --no-banner
+    markdown:
+      glob: '*.md'
+      run: npx --no -- markdownlint-cli2 {staged_files}
+    format:
+      run: npx --no -- prettier --check --ignore-unknown {staged_files}
+    oxlint:
+      glob: '*.{js,mjs}'
+      run: npx --no -- oxlint --deny-warnings {staged_files}
+
+pre-push:
+  commands:
+    # Every commit not yet on main, including commit messages.
+    # ponytail: compares against origin/main; a push to some other long-lived branch needs its own range.
+    open-finding-guard:
+      run: node scripts/open-finding-guard.mjs --range origin/main..HEAD
+    battery:
+      run: npm run ci:local

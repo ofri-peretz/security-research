@@ -30,6 +30,20 @@ Suggested rule (mcp-sdk-security or node-security): a URL from a network respons
 metadata passed to `open` / `child_process` / `shell.openExternal` without a scheme
 allowlist (`https:` only).
 
+## Rules worth adding (from the AI/MCP assessment research)
+
+Each catches something static analysis can see. See [standards/ai-mcp-assessment.md](standards/ai-mcp-assessment.md).
+
+| Candidate rule                                                          | CWE                    | Why                                                     |
+| ----------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------- |
+| URL from server metadata opened without a scheme allowlist              | CWE-78, CWE-20         | The CVE-2025-6514 pattern, missed by every current rule |
+| Outbound fetch of a metadata- or tool-supplied URL without an allowlist | CWE-918                | SSRF through MCP discovery and tools                    |
+| Model output reaching `eval` / `innerHTML` / raw SQL                    | CWE-94, CWE-79, CWE-89 | LLM05                                                   |
+| Tool description built from untrusted data                              | CWE-1427               | Tool poisoning at the source                            |
+| Webhook signature compared with `===`                                   | CWE-208                | Timing-unsafe verification                              |
+| Request body spread into a model create/update                          | CWE-915                | Mass assignment (API3)                                  |
+| Wildcard OAuth scopes in MCP config                                     | CWE-250                | MCP02                                                   |
+
 ## Precision in the default config
 
 The 2026-11-26 hunt of `mcp-remote@0.1.15`:

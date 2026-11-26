@@ -1,7 +1,7 @@
 {
   "title": "Security assessment: protocol-ctf lab servers",
   "client": "security-research (internal dogfood engagement)",
-  "reportVersion": "1.0",
+  "reportVersion": "2.0",
   "target": {
     "name": "protocol-ctf vulnerable servers",
     "version": "30c386a"
@@ -19,7 +19,7 @@
   "methodology": "Static analysis with our ESLint security plugins at their strict configs. Then manual exploitation of each server with the reference exploit, a negative control to confirm the exploit is what gets the flag, and a retest of the reference fix: the functional check must pass and the exploit must be blocked.",
   "limitations": "The labs are intentionally vulnerable. Findings are real for this code but were placed on purpose. AI-track servers use a deterministic toy model, not a production LLM.",
   "outOfScope": "The CTF CLI (ctf.mjs), shared libraries under lib/, dependencies, and deployment. The labs run only on loopback.",
-  "summary": "Nine intentionally placed vulnerabilities were confirmed by exploitation, and one further weakness was found by static analysis. Every placed vulnerability has a reference fix that passes its functional check and blocks the exploit on retest. The non-constant-time password comparison in ws-1 is unfixed in both the vulnerable and the fixed server. Static analysis with our own plugins found the root cause of 3 of the 7 vulnerabilities a code scanner could be expected to find.",
+  "summary": "The nine lab servers contain nine exploitable vulnerabilities, all confirmed by exploitation. Four are critical: command injection in the MCP tool server, code injection in the gRPC order filter, prototype pollution granting admin, and identity spoofing through gRPC metadata. A reference fix for each was verified to block the exploit while keeping the feature working. A tenth weakness, a non-constant-time password comparison in the chat server, is low severity and remains open in both the vulnerable and the fixed code. The labs are intentionally vulnerable: these results describe the code as written, not a production deployment.",
   "standards": [
     {
       "name": "CVSS",
@@ -65,10 +65,175 @@
     }
   ],
   "tools": [
-    { "name": "eslint", "version": "9" },
-    { "name": "eslint-plugin-node-security", "version": "6.3.2" },
-    { "name": "eslint-plugin-secure-coding", "version": "6.5.1" },
-    { "name": "eslint-plugin-mcp-sdk-security", "version": "2.1.5" },
-    { "name": "protocol-ctf exploits and verify", "version": "30c386a" }
+    {
+      "name": "eslint",
+      "version": "9"
+    },
+    {
+      "name": "eslint-plugin-node-security",
+      "version": "6.3.2"
+    },
+    {
+      "name": "eslint-plugin-secure-coding",
+      "version": "6.5.1"
+    },
+    {
+      "name": "eslint-plugin-mcp-sdk-security",
+      "version": "2.1.5"
+    },
+    {
+      "name": "protocol-ctf exploits and verify",
+      "version": "30c386a"
+    }
+  ],
+  "issueDate": "2026-11-26",
+  "confidentiality": "Internal: prepared for the security-research project. Not for distribution outside it.",
+  "rulesOfEngagement": "Testing ran only against the lab servers on 127.0.0.1, on a workstation controlled by the testers. No third-party system, account or network was touched. Exploits were run only against the intentionally vulnerable lab code.",
+  "levelOfEffort": "One tester, one working day.",
+  "strategicRecommendations": [
+    "Never pass client-influenced strings to a shell, an evaluator or a dynamic-code constructor. F-01 and F-06 share this root cause.",
+    "Derive identity only from verified credentials. Headers, metadata and Origin are client-controlled (F-04, F-08).",
+    "Check authorization on every message and object, not only at connection time (F-07).",
+    "Give AI agents only the tools their task needs, and keep secrets out of prompts (F-02, F-03)."
+  ],
+  "positiveObservations": [
+    "Every server binds to 127.0.0.1 only, so none of the findings is reachable from the network in the lab as shipped.",
+    "Every vulnerability has an exploit, a negative control and a reference fix, checked by one command. That gives this assessment a reproducible evidence chain.",
+    "The flag secret is created with owner-only permissions (0600)."
+  ],
+  "timeline": [
+    {
+      "date": "2026-11-26",
+      "event": "Static analysis of the nine servers with the ESLint security plugins (strict)"
+    },
+    {
+      "date": "2026-11-26",
+      "event": "Manual exploitation of each server, with a negative control per exploit"
+    },
+    {
+      "date": "2026-11-26",
+      "event": "Reference fixes verified: functional check passes and exploit blocked"
+    },
+    {
+      "date": "2026-11-26",
+      "event": "Report version 2.0 issued"
+    }
+  ],
+  "revisions": [
+    {
+      "version": "1.0",
+      "date": "2026-11-26",
+      "change": "First issue"
+    },
+    {
+      "version": "2.0",
+      "date": "2026-11-26",
+      "change": "Adds difficulty, exploit scenarios, coverage and document control. Reference fixes are now labeled as such, not as client retests. SOC 2 mapping narrowed."
+    }
+  ],
+  "coverage": [
+    {
+      "id": "C-01",
+      "ref": "V1.2.5, MCP05",
+      "test": "OS command injection through MCP tool arguments (ai-1)",
+      "result": "fail",
+      "findings": ["F-01"]
+    },
+    {
+      "id": "C-02",
+      "ref": "LLM01, LLM06",
+      "test": "Indirect prompt injection against the digest agent and its tool permissions (ai-2)",
+      "result": "fail",
+      "findings": ["F-02"]
+    },
+    {
+      "id": "C-03",
+      "ref": "LLM07, LLM02",
+      "test": "System prompt secret extraction past input and output filters (ai-3)",
+      "result": "fail",
+      "findings": ["F-03"]
+    },
+    {
+      "id": "C-04",
+      "ref": "V4.1.3, API2",
+      "test": "Identity spoofing through gRPC metadata (grpc-1)",
+      "result": "fail",
+      "findings": ["F-04"]
+    },
+    {
+      "id": "C-05",
+      "ref": "API9, WSTG-CONF",
+      "test": "Service enumeration through gRPC reflection and unauthenticated internal methods (grpc-2)",
+      "result": "fail",
+      "findings": ["F-05"]
+    },
+    {
+      "id": "C-06",
+      "ref": "V1.3.2",
+      "test": "Code injection through the order filter expression (grpc-3)",
+      "result": "fail",
+      "findings": ["F-06"]
+    },
+    {
+      "id": "C-07",
+      "ref": "V8.2.2, API1",
+      "test": "Room membership enforced per message (ws-1)",
+      "result": "fail",
+      "findings": ["F-07"]
+    },
+    {
+      "id": "C-08",
+      "ref": "V4.4.2",
+      "test": "WebSocket Origin validation and its use as authentication (ws-2)",
+      "result": "fail",
+      "findings": ["F-08"]
+    },
+    {
+      "id": "C-09",
+      "ref": "V15.3.6",
+      "test": "Prototype pollution through settings patches (ws-3)",
+      "result": "fail",
+      "findings": ["F-09"]
+    },
+    {
+      "id": "C-10",
+      "ref": "WSTG-ATHN",
+      "test": "Password comparison and storage in the chat login (ws-1)",
+      "result": "fail",
+      "findings": ["F-10"]
+    },
+    {
+      "id": "C-11",
+      "ref": "WSTG-CONF",
+      "test": "Every server listens on loopback only",
+      "result": "pass"
+    },
+    {
+      "id": "C-12",
+      "ref": "V13.3.1",
+      "test": "Flag secret stored with owner-only file permissions",
+      "result": "pass"
+    },
+    {
+      "id": "C-13",
+      "ref": "WSTG-CRYP",
+      "test": "Transport encryption (TLS)",
+      "result": "n/a",
+      "reason": "the labs serve plain HTTP, WebSocket and gRPC on loopback by design"
+    },
+    {
+      "id": "C-14",
+      "ref": "CIS, CCM",
+      "test": "Cloud and deployment configuration",
+      "result": "out-of-scope",
+      "reason": "the labs are not deployed"
+    },
+    {
+      "id": "C-15",
+      "ref": "WSTG-ATHN",
+      "test": "Brute force and account lockout",
+      "result": "out-of-scope",
+      "reason": "the lab accounts are public by design"
+    }
   ]
 }

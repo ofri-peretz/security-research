@@ -13,16 +13,16 @@ on them. Editions move, so every report cites the edition and date it maps to.
   The 2022 revision changed points of focus, not the criteria.
 - **Five categories:** Security, Availability, Processing Integrity, Confidentiality, Privacy.
   Only **Security** (Common Criteria CC1–CC9) is mandatory; the rest are scoped per engagement.
-  *Unverified.*
+  _Unverified._
 - **Type I** tests control design at one point in time. **Type II** tests operating
   effectiveness over a period, so evidence has to cover the whole period, not one test date.
-  *Unverified.*
+  _Unverified._
 - **No criterion requires a pen test.** Auditors commonly expect vulnerability evidence, and a
   pen test is the usual source
   ([Moss Adams](https://www.mossadams.com/articles/2026/04/penetration-test-for-soc-compliance)).
 - **Criteria our evidence supports:** CC4.1 (monitoring), CC7.1 (vulnerability detection), CC7.2
   (anomaly monitoring), CC8.1 (change management, i.e. remediation), and CC6.x for access-control
-  findings. *Unverified: sources disagree on CC7.1 vs CC7.2 for vulnerability management.*
+  findings. _Unverified: sources disagree on CC7.1 vs CC7.2 for vulnerability management._
 - **What auditors look for in a pen test**
   ([CSA](https://cloudsecurityalliance.org/articles/soc-2-reports-and-penetration-tests)):
   scope tied to the system boundary and version, methodology, test dates, tester independence,
@@ -30,13 +30,13 @@ on them. Editions move, so every report cites the edition and date it maps to.
 
 ## OWASP
 
-| Standard | Edition | Use in a report |
-|---|---|---|
-| [ASVS](https://owasp.org/projects/asvs) | 5.0.0, levels L1–L3 (May 2025, *unverified*) | **The testable one.** Each requirement passes or fails at a stated level, so map checks to ASVS IDs |
-| [Top 10](https://top10.owasp.org/2025) | 2025 (A01 Broken Access Control … A10 Mishandling of Exceptional Conditions) | Awareness category, weak as audit criteria |
-| [API Security Top 10](https://api-security.owasp.org/editions/2023/en/0x11-t10) | 2023 (API1 BOLA … API10 Unsafe Consumption) | Category for API findings |
-| [LLM Top 10](https://genai.owasp.org/llm-top-10/) | 2025 (LLM01 Prompt Injection … LLM10 Unbounded Consumption); a 2026 link exists, unread | Category for AI findings |
-| [MCP Top 10](https://owasp.org/www-project-mcp-top-10/) | Beta (MCP01 Token Mismanagement, MCP03 Tool Poisoning, MCP05 Command Injection, MCP07 Insufficient Auth …) | Category for MCP findings; say it's beta |
+| Standard                                                                        | Edition                                                                                                    | Use in a report                                                                                     |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [ASVS](https://owasp.org/projects/asvs)                                         | 5.0.0, levels L1–L3 (May 2025, _unverified_)                                                               | **The testable one.** Each requirement passes or fails at a stated level, so map checks to ASVS IDs |
+| [Top 10](https://top10.owasp.org/2025)                                          | 2025 (A01 Broken Access Control … A10 Mishandling of Exceptional Conditions)                               | Awareness category, weak as audit criteria                                                          |
+| [API Security Top 10](https://api-security.owasp.org/editions/2023/en/0x11-t10) | 2023 (API1 BOLA … API10 Unsafe Consumption)                                                                | Category for API findings                                                                           |
+| [LLM Top 10](https://genai.owasp.org/llm-top-10/)                               | 2025 (LLM01 Prompt Injection … LLM10 Unbounded Consumption); a 2026 link exists, unread                    | Category for AI findings                                                                            |
+| [MCP Top 10](https://owasp.org/www-project-mcp-top-10/)                         | Beta (MCP01 Token Mismanagement, MCP03 Tool Poisoning, MCP05 Command Injection, MCP07 Insufficient Auth …) | Category for MCP findings; say it's beta                                                            |
 
 ## CWE
 

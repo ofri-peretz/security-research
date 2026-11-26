@@ -4,8 +4,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { score, parseVector } from './cvss.mjs';
-import { validate, CWE } from './validate.mjs';
-import { render } from './render.mjs';
+import { validate, validateCoverage, CWE } from './validate.mjs';
+import { render, statusLabel } from './render.mjs';
 import { plainMessage } from './sarif.mjs';
 
 const here = import.meta.dirname;
@@ -89,8 +89,13 @@ test('severity needs a valid vector and a rationale', () => {
 });
 
 test('remediation claims need evidence', () => {
-  refuses((i) => delete F(i, 'F-01').fix, /needs fix.commit/);
-  refuses((i) => delete F(i, 'F-01').retest, /retest.date/);
+  refuses((i) => (F(i, 'F-01').fix.kind = 'magic'), /fix.kind must be/);
+  refuses((i) => delete F(i, 'F-01').fix.path, /reference fix needs fix.path/);
+  refuses((i) => delete F(i, 'F-01').retest.by, /retest needs retest.by/);
+  refuses(
+    (i) => (F(i, 'F-01').retest.date = 'today'),
+    /retest.date \(YYYY-MM-DD\)/,
+  );
   refuses(
     (i) => (F(i, 'F-01').retest.expect = 'fixed: exploit is ignored'),
     /retest log has no/,
@@ -98,6 +103,144 @@ test('remediation claims need evidence', () => {
   refuses(
     (i) => (i.log = i.log.replace('ai-1 Tool Time', 'ai-1 Renamed')),
     /retest log has no/,
+  );
+});
+
+test('a client retest must be of a later commit than the one tested', () => {
+  refuses(
+    (i) =>
+      (F(i, 'F-01').fix = {
+        kind: 'client',
+        commit: i.engagement.target.version,
+      }),
+    /equals the tested version/,
+  );
+  refuses(
+    (i) => (F(i, 'F-01').fix = { kind: 'client' }),
+    /client fix needs fix.commit/,
+  );
+  const input = base();
+  F(input, 'F-01').fix = { kind: 'client', commit: 'abc1234' };
+  assert.deepEqual(validate(input), []);
+});
+
+test('reference fixes are never labeled as client retests', () => {
+  const input = base();
+  assert.equal(statusLabel(F(input, 'F-01')), 'Reference fix verified');
+  assert.equal(
+    statusLabel({
+      ...F(input, 'F-01'),
+      fix: { kind: 'client', commit: 'abc' },
+    }),
+    'Fixed and retested',
+  );
+  assert.equal(statusLabel({ status: 'risk-accepted' }), 'Risk accepted');
+  assert.ok(!render(input).includes('Fixed and retested'));
+});
+
+test('risk acceptance needs who accepted it and why', () => {
+  refuses((i) => (F(i, 'F-10').status = 'risk-accepted'), /riskAcceptance.by/);
+});
+
+test('every finding has difficulty, an exploit scenario and a short-term fix', () => {
+  refuses(
+    (i) => (F(i, 'F-01').difficulty = { level: 'Trivial', basis: 'x' }),
+    /difficulty needs a level/,
+  );
+  refuses(
+    (i) => (F(i, 'F-01').difficulty.basis = ''),
+    /difficulty needs a level/,
+  );
+  refuses(
+    (i) => delete F(i, 'F-01').exploitScenario,
+    /exploitScenario is required/,
+  );
+  refuses(
+    (i) => (F(i, 'F-01').remediation = 'just fix it'),
+    /remediation.shortTerm is required/,
+  );
+  refuses(
+    (i) => (F(i, 'F-01').remediation.targetDate = 'soon'),
+    /targetDate must be YYYY-MM-DD/,
+  );
+});
+
+test('chains and reproducibility must be consistent', () => {
+  refuses((i) => (F(i, 'F-01').chainsWith = ['F-99']), /chainsWith names F-99/);
+  refuses((i) => (F(i, 'F-01').chainsWith = ['F-01']), /chainsWith names F-01/);
+  refuses(
+    (i) =>
+      (F(i, 'F-02').reproducibility = {
+        model: 'm',
+        version: '1',
+        trials: 5,
+        successes: 6,
+      }),
+    /reproducibility needs/,
+  );
+  const input = base();
+  F(input, 'F-02').reproducibility = {
+    model: 'toy',
+    version: '1',
+    trials: 10,
+    successes: 9,
+  };
+  F(input, 'F-01').chainsWith = ['F-06'];
+  assert.deepEqual(validate(input), []);
+  assert.match(render(input), /9 of 10 attempts/);
+});
+
+test('coverage records every test, and nothing stays not-tested', () => {
+  refuses(
+    (i) => (i.engagement.coverage[10].result = 'not-tested'),
+    /still not-tested/,
+  );
+  refuses(
+    (i) => delete i.engagement.coverage[12].reason,
+    /n\/a needs a reason/,
+  );
+  refuses(
+    (i) => (i.engagement.coverage[0].findings = []),
+    /failed test must name/,
+  );
+  refuses(
+    (i) => (i.engagement.coverage[0].findings = ['F-77']),
+    /unknown finding F-77/,
+  );
+  refuses((i) => (i.engagement.coverage[0].ref = 'V99.1.1'), /not an ASVS/);
+  refuses((i) => (i.engagement.coverage = []), /coverage .* is required/);
+});
+
+test('the SaaS template refuses to build until every domain is tested or scoped out', () => {
+  const t = JSON.parse(
+    fs.readFileSync(
+      path.join(here, 'templates', 'saas-engagement.json'),
+      'utf8',
+    ),
+  );
+  assert.equal(t.coverage.length, 14);
+  const errors = [];
+  validateCoverage(t, new Set(), errors);
+  assert.equal(errors.filter((e) => /still not-tested/.test(e)).length, 14);
+});
+
+test('the engagement needs document control and a dated timeline', () => {
+  refuses(
+    (i) => delete i.engagement.confidentiality,
+    /confidentiality is required/,
+  );
+  refuses(
+    (i) => (i.engagement.issueDate = '26/11/2026'),
+    /issueDate must be YYYY-MM-DD/,
+  );
+  refuses((i) => (i.engagement.timeline = []), /timeline/);
+  refuses(
+    (i) => (i.engagement.timeline[0].date = 'Tuesday'),
+    /needs a YYYY-MM-DD date/,
+  );
+  refuses(
+    (i) => (i.engagement.positiveObservations = [3]),
+    /positiveObservations must be a list/,
   );
 });
 

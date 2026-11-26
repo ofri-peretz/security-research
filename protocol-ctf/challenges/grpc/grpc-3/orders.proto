@@ -1,0 +1,9 @@
+syntax = "proto3";
+package orders;
+
+service Orders {
+  // Streams your orders that match a filter expression, e.g.  o.total > 50 && o.status == "shipped"
+  rpc Stream (StreamRequest) returns (stream Order);
+}
+message StreamRequest { string filter = 1; }
+message Order { string id = 1; string status = 2; double total = 3; string note = 4; }

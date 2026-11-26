@@ -1,0 +1,3 @@
+["The hostname is pasted into a shell command line. What does the shell do with your input before node ever sees it?",
+ "The filter blocks ; & | < > . It doesn't block command substitution.",
+ "hostname: \"$(printenv OPS_API_TOKEN)\" , and read the 'could not resolve' message."]

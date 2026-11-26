@@ -1,0 +1,10 @@
+syntax = "proto3";
+package shop;
+
+// The public, documented API. This is the only proto file the vendor gives customers.
+service Catalog {
+  rpc Search (SearchRequest) returns (SearchResponse);
+}
+message SearchRequest { string query = 1; }
+message Product { string sku = 1; string name = 2; int32 price_cents = 3; }
+message SearchResponse { repeated Product products = 1; }

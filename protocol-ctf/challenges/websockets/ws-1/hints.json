@@ -1,0 +1,3 @@
+["Log in and read every frame the server sends you, not just the replies to your commands.",
+ "One frame tells you the name of a room you were never offered.",
+ "Compare the checks in `say` with the checks in `join`."]

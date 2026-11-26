@@ -1,0 +1,9 @@
+syntax = "proto3";
+package bank;
+
+service Accounts {
+  // Returns the balance and memo of an account you own.
+  rpc GetAccount (AccountRequest) returns (Account);
+}
+message AccountRequest { string account_id = 1; }
+message Account { string account_id = 1; string owner = 2; int64 balance_cents = 3; string memo = 4; }

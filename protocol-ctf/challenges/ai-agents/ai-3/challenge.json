@@ -1,0 +1,2 @@
+{ "id": "ai-3", "title": "Leaky Prompt", "level": 3, "port": 41303,
+  "tags": ["system prompt leakage", "guardrail bypass", "LLM07", "LLM02", "CWE-200"] }

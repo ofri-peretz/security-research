@@ -1,0 +1,3 @@
+["Call GetAccount for your own account first, then for acc-0001. Read the error carefully.",
+ "There are two ways the backend decides who you are. Which one wins?",
+ "Metadata keys are just headers you choose: grpcurl -H 'x-authenticated-user: treasury' ..."]

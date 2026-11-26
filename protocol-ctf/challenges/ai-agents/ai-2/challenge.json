@@ -1,0 +1,2 @@
+{ "id": "ai-2", "title": "Poisoned Note", "level": 2, "port": 41302,
+  "tags": ["indirect prompt injection", "excessive agency", "LLM01", "LLM06", "CWE-1427"] }

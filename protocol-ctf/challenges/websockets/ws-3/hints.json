@@ -1,0 +1,3 @@
+["`session` is a plain object literal. Where does `session.isAdmin` look when the session itself has no such property?",
+ "JSON.parse('{\"__proto__\": {...}}') creates an ordinary own key named __proto__. Object.keys() returns it. What is target['__proto__'] when target is a plain object?",
+ "Send a settings.patch whose patch is {\"__proto__\": {\"isAdmin\": true}}, then ask for the secrets."]

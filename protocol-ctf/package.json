@@ -1,0 +1,19 @@
+{
+  "name": "protocol-ctf",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local, hands-on CTF for protocol security: WebSockets, gRPC, AI agents/MCP.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "bin": { "ctf": "./ctf.mjs" },
+  "scripts": {
+    "ctf": "node ctf.mjs",
+    "verify": "node test/verify-all.mjs"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.0",
+    "@grpc/proto-loader": "^0.7.13",
+    "@grpc/reflection": "^1.0.4",
+    "ws": "^8.18.0"
+  }
+}

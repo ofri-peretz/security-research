@@ -1,0 +1,2 @@
+{ "id": "ws-3", "title": "Merge Conflict", "level": 3, "port": 41103,
+  "tags": ["prototype pollution", "CWE-1321", "JS-specific"] }

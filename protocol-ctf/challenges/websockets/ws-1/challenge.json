@@ -1,0 +1,2 @@
+{ "id": "ws-1", "title": "Eavesdrop", "level": 1, "port": 41101,
+  "tags": ["BOLA", "CWE-639", "OWASP A01"] }

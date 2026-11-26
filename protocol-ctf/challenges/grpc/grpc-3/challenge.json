@@ -1,0 +1,2 @@
+{ "id": "grpc-3", "title": "Stream Filter", "level": 3, "port": 41203,
+  "tags": ["code injection", "server streaming", "CWE-95", "OWASP A03"] }

@@ -1,0 +1,3 @@
+["Ask the server to describe itself: grpcurl -plaintext 127.0.0.1:41202 list",
+ "Describe the unexpected service and its request message (grpcurl ... describe <symbol>). Then call it with an empty request and read the error.",
+ "grpcurl -plaintext -d '{\"table\":\"api_keys\"}' 127.0.0.1:41202 ops.Maintenance/ExportTable"]

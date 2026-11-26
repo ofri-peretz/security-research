@@ -1,0 +1,2 @@
+{ "id": "ai-1", "title": "Tool Time", "level": 1, "port": 41301,
+  "tags": ["MCP", "command injection", "CWE-78", "LLM05", "LLM06"] }

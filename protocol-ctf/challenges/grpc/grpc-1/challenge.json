@@ -1,0 +1,2 @@
+{ "id": "grpc-1", "title": "Trust the Gateway", "level": 1, "port": 41201,
+  "tags": ["auth bypass", "metadata trust", "CWE-290", "OWASP A07"] }

@@ -1,0 +1,3 @@
+["The filter becomes the body of a function. Anything that is a valid JS expression runs.",
+ "An expression can have side effects: the comma operator and assignment are both 'expression characters'.",
+ "Write the secret into a field of the row the server is about to stream back, then return true: (o.note = process.env.PAYMENTS_SIGNING_KEY, true)"]

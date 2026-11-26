@@ -1,0 +1,3 @@
+["Who sets the Origin header when the client is not a browser?",
+ "The `ws` package lets you pass headers: new WebSocket(url, { headers: { origin: '...' } }) or { origin: '...' }.",
+ "Read the regex closely. Even if Origin were browser-enforced, would https://console.corp.local.evil.example pass?"]

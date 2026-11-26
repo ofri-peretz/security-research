@@ -1,0 +1,2 @@
+{ "id": "grpc-2", "title": "Hidden Methods", "level": 2, "port": 41202,
+  "tags": ["server reflection", "undocumented API", "CWE-306", "CWE-200"] }

@@ -1,0 +1,390 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "eslint",
+          "version": "eslint@9.39.5 eslint-plugin-node-security@6.3.2 eslint-plugin-secure-coding@6.5.1 eslint-plugin-mcp-sdk-security@2.1.5",
+          "rules": [
+            {
+              "id": "node-security/require-secure-credential-storage"
+            },
+            {
+              "id": "node-security/no-shell-injection"
+            },
+            {
+              "id": "node-security/detect-eval-with-expression"
+            },
+            {
+              "id": "secure-coding/no-hardcoded-credentials"
+            },
+            {
+              "id": "secure-coding/no-insecure-comparison"
+            },
+            {
+              "id": "secure-coding/no-improper-sanitization"
+            },
+            {
+              "id": "secure-coding/detect-object-injection"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "node-security/require-secure-credential-storage",
+          "level": "error",
+          "message": {
+            "text": "A credential assigned into process.env is inherited by every child process this app spawns, is readable at /proc/<pid>/environ, and is captured verbatim by crash dumps and by the environment snapshots error reporters send upstream."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/ai-agents/ai-1/server.mjs"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "node-security/no-shell-injection",
+          "level": "error",
+          "message": {
+            "text": "Shell command built via string concatenation or template literal. An attacker who controls any interpolated value can execute arbitrary OS commands."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/ai-agents/ai-1/server.mjs"
+                },
+                "region": {
+                  "startLine": 26,
+                  "startColumn": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "node-security/detect-eval-with-expression",
+          "level": "error",
+          "message": {
+            "text": "Use template literals instead of eval() for string interpolation"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/grpc/grpc-3/server.mjs"
+                },
+                "region": {
+                  "startLine": 31,
+                  "startColumn": 14
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "secure-coding/no-hardcoded-credentials",
+          "level": "error",
+          "message": {
+            "text": "Hard-coded Common password detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/websockets/ws-1/server.mjs"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "secure-coding/no-insecure-comparison",
+          "level": "error",
+          "message": {
+            "text": "Secret comparison with !== can leak timing information"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/websockets/ws-1/server.mjs"
+                },
+                "region": {
+                  "startLine": 31,
+                  "startColumn": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "secure-coding/no-improper-sanitization",
+          "level": "error",
+          "message": {
+            "text": "A string reaching this sink carries unescaped markup"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/websockets/ws-2/server.mjs"
+                },
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 97
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "secure-coding/detect-object-injection",
+          "level": "error",
+          "message": {
+            "text": "Every key of an untrusted object is copied onto this target, so the caller chooses which field is written — including one they should not control, such as isAdmin"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/websockets/ws-3/server.mjs"
+                },
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 60
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "protocol-ctf-exploits",
+          "version": "30c386a",
+          "informationUri": "https://github.com/ofri-peretz/security-research/tree/main/protocol-ctf/solutions",
+          "rules": [
+            {
+              "id": "ai-1"
+            },
+            {
+              "id": "ai-2"
+            },
+            {
+              "id": "ai-3"
+            },
+            {
+              "id": "grpc-1"
+            },
+            {
+              "id": "grpc-2"
+            },
+            {
+              "id": "grpc-3"
+            },
+            {
+              "id": "ws-1"
+            },
+            {
+              "id": "ws-2"
+            },
+            {
+              "id": "ws-3"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "ai-1",
+          "level": "error",
+          "message": {
+            "text": "Exploited: exec() runs the tool argument through a shell; the denylist is bypassable"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/ai-agents/ai-1/server.mjs"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "ai-2",
+          "level": "error",
+          "message": {
+            "text": "Exploited: agent gets every tool and follows instructions embedded in an untrusted note"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/ai-agents/ai-2/server.mjs"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "ai-3",
+          "level": "error",
+          "message": {
+            "text": "Exploited: staff discount code is placed in the system prompt; keyword filters are bypassable"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/ai-agents/ai-3/server.mjs"
+                },
+                "region": {
+                  "startLine": 11
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "grpc-1",
+          "level": "error",
+          "message": {
+            "text": "Exploited: identity is taken from the client-settable x-authenticated-user metadata"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/grpc/grpc-1/server.mjs"
+                },
+                "region": {
+                  "startLine": 20
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "grpc-2",
+          "level": "error",
+          "message": {
+            "text": "Exploited: reflection is enabled on the public listener, exposing an unauthenticated internal service"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/grpc/grpc-2/server.mjs"
+                },
+                "region": {
+                  "startLine": 56
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "grpc-3",
+          "level": "error",
+          "message": {
+            "text": "Exploited: order filter is compiled with new Function; the character allowlist is bypassable"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/grpc/grpc-3/server.mjs"
+                },
+                "region": {
+                  "startLine": 31
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "ws-1",
+          "level": "error",
+          "message": {
+            "text": "Exploited: join accepts any room name without checking membership"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/websockets/ws-1/server.mjs"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "ws-2",
+          "level": "error",
+          "message": {
+            "text": "Exploited: Origin header is used as authentication, matched by a regex without an end anchor"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/websockets/ws-2/server.mjs"
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "ws-3",
+          "level": "error",
+          "message": {
+            "text": "Exploited: recursive merge copies __proto__ keys from client patches"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "protocol-ctf/challenges/websockets/ws-3/server.mjs"
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,7 @@
 {
-  "ignorePatterns": ["protocol-ctf/challenges/**", "protocol-ctf/solutions/**"]
+  "ignorePatterns": [
+    "protocol-ctf/challenges/**",
+    "protocol-ctf/solutions/**",
+    "report/vendor/**"
+  ]
 }

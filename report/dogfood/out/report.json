@@ -1,0 +1,587 @@
+{
+  "engagement": {
+    "title": "Security assessment: protocol-ctf lab servers",
+    "client": "security-research (internal dogfood engagement)",
+    "reportVersion": "1.0",
+    "target": {
+      "name": "protocol-ctf vulnerable servers",
+      "version": "30c386a"
+    },
+    "boundary": "The nine lab servers under protocol-ctf/challenges/ (WebSocket, gRPC and AI-agent tracks), each bound to 127.0.0.1. Remediation was assessed against the reference fixes in protocol-ctf/solutions/.",
+    "type": "Point in time",
+    "period": {
+      "start": "2026-11-26",
+      "end": "2026-11-26"
+    },
+    "tester": {
+      "name": "security-research maintainers",
+      "independence": "Not independent: the testers also wrote the lab servers. This is a dogfood engagement to exercise the report tooling. A client engagement would use a tester independent of the code's authors."
+    },
+    "methodology": "Static analysis with our ESLint security plugins at their strict configs. Then manual exploitation of each server with the reference exploit, a negative control to confirm the exploit is what gets the flag, and a retest of the reference fix: the functional check must pass and the exploit must be blocked.",
+    "limitations": "The labs are intentionally vulnerable. Findings are real for this code but were placed on purpose. AI-track servers use a deterministic toy model, not a production LLM.",
+    "outOfScope": "The CTF CLI (ctf.mjs), shared libraries under lib/, dependencies, and deployment. The labs run only on loopback.",
+    "summary": "Nine intentionally placed vulnerabilities were confirmed by exploitation, and one further weakness was found by static analysis. Every placed vulnerability has a reference fix that passes its functional check and blocks the exploit on retest. The non-constant-time password comparison in ws-1 is unfixed in both the vulnerable and the fixed server. Static analysis with our own plugins found the root cause of 3 of the 7 vulnerabilities a code scanner could be expected to find.",
+    "standards": [
+      {
+        "name": "CVSS",
+        "edition": "v4.0",
+        "url": "https://www.first.org/cvss/v4-0/",
+        "use": "Severity, scored with FIRST's reference implementation"
+      },
+      {
+        "name": "OWASP ASVS",
+        "edition": "5.0.0",
+        "url": "https://owasp.org/www-project-application-security-verification-standard/",
+        "use": "Testable requirement for each finding"
+      },
+      {
+        "name": "OWASP Top 10",
+        "edition": "2025",
+        "url": "https://top10.owasp.org/2025",
+        "use": "Risk category"
+      },
+      {
+        "name": "OWASP API Security Top 10",
+        "edition": "2023",
+        "url": "https://owasp.org/API-Security/editions/2023/en/0x11-t10/",
+        "use": "Risk category for the gRPC and WebSocket APIs"
+      },
+      {
+        "name": "OWASP Top 10 for LLM Applications",
+        "edition": "2025",
+        "url": "https://genai.owasp.org/llm-top-10/",
+        "use": "Risk category for the AI-agent track"
+      },
+      {
+        "name": "OWASP MCP Top 10",
+        "edition": "2025 (beta)",
+        "url": "https://owasp.org/www-project-mcp-top-10/",
+        "use": "Risk category for the MCP server"
+      },
+      {
+        "name": "SOC 2 Trust Services Criteria",
+        "edition": "2017, revised points of focus 2022",
+        "url": "https://www.aicpa-cima.com/resources/article/2017-trust-services-criteria-with-revised-points-of-focus-2022",
+        "use": "Criteria this evidence supports (tester's mapping)"
+      }
+    ],
+    "tools": [
+      {
+        "name": "eslint",
+        "version": "9"
+      },
+      {
+        "name": "eslint-plugin-node-security",
+        "version": "6.3.2"
+      },
+      {
+        "name": "eslint-plugin-secure-coding",
+        "version": "6.5.1"
+      },
+      {
+        "name": "eslint-plugin-mcp-sdk-security",
+        "version": "2.1.5"
+      },
+      {
+        "name": "protocol-ctf exploits and verify",
+        "version": "30c386a"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "F-01",
+      "title": "OS command injection through an MCP tool argument",
+      "cwe": "CWE-78",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+        "rationale": "The MCP endpoint needs no authentication. One tools/call request with a crafted hostname runs an arbitrary command as the server user, with full read, write and availability impact on the server."
+      },
+      "owasp": [
+        {
+          "list": "MCP Top 10 (2025, beta)",
+          "id": "MCP05",
+          "name": "Command Injection"
+        },
+        {
+          "list": "Top 10:2025",
+          "id": "A05",
+          "name": "Injection"
+        }
+      ],
+      "asvs": [
+        "V1.2.5"
+      ],
+      "soc2": [
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "The netops lookup tool passes its hostname argument into exec() inside a shell command string. A character denylist is applied first, but it doesn't cover every shell metacharacter, so a crafted hostname runs extra commands.",
+      "impact": "Anyone who can reach the MCP endpoint, including an AI assistant fed hostile input, can run commands as the server process and read its environment, which holds the server's API token.",
+      "remediation": "Call the lookup with execFile/spawn and an argument array, with no shell. Validate the hostname against an allowlist pattern instead of a denylist.",
+      "results": [
+        "protocol-ctf-exploits/ai-1@protocol-ctf/challenges/ai-agents/ai-1/server.mjs:26",
+        "eslint/node-security/no-shell-injection@protocol-ctf/challenges/ai-agents/ai-1/server.mjs:26"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/ai-1/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "ai-1 Tool Time",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/ai-1/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/ai-1/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 9.3,
+      "severity": "Critical"
+    },
+    {
+      "id": "F-04",
+      "title": "Backend trusts a client-settable identity header",
+      "cwe": "CWE-290",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+        "rationale": "Any caller that can reach the gRPC port can set the metadata header with no credentials and act as any user, reading and changing their account."
+      },
+      "owasp": [
+        {
+          "list": "API Security Top 10 (2023)",
+          "id": "API2",
+          "name": "Broken Authentication"
+        },
+        {
+          "list": "Top 10:2025",
+          "id": "A07",
+          "name": "Authentication Failures"
+        }
+      ],
+      "asvs": [
+        "V4.1.3"
+      ],
+      "soc2": [
+        "CC6.1",
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "callerOf() takes the user from the x-authenticated-user metadata header whenever it is present, on the assumption that only the gateway sets it. The backend listener accepts direct connections, so a client can set it too.",
+      "impact": "Full impersonation of any account in the bank service.",
+      "remediation": "Accept forwarded identity only from the gateway, authenticated with mTLS or a signed token, and strip the header from client requests. Otherwise require the bearer token on every call.",
+      "results": [
+        "protocol-ctf-exploits/grpc-1@protocol-ctf/challenges/grpc/grpc-1/server.mjs:20"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/grpc-1/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "grpc-1 Trust the Gateway",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/grpc-1/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/grpc-1/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 9.3,
+      "severity": "Critical"
+    },
+    {
+      "id": "F-06",
+      "title": "Order filter is compiled and run as code",
+      "cwe": "CWE-95",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+        "rationale": "The filter string reaches new Function() past a character allowlist that can be bypassed, so code runs in the server process with no authentication."
+      },
+      "owasp": [
+        {
+          "list": "Top 10:2025",
+          "id": "A05",
+          "name": "Injection"
+        }
+      ],
+      "asvs": [
+        "V1.3.2"
+      ],
+      "soc2": [
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "The order stream builds a predicate with new Function from the client's filter expression. A length limit and a character allowlist don't stop property access, which reaches the server-side signing key.",
+      "impact": "Code runs in the order service. The payments signing key and the order data are exposed.",
+      "remediation": "Replace the expression with a structured filter: field, operator and value, checked against a fixed list of fields and operators. Never compile client input.",
+      "results": [
+        "protocol-ctf-exploits/grpc-3@protocol-ctf/challenges/grpc/grpc-3/server.mjs:31",
+        "eslint/node-security/detect-eval-with-expression@protocol-ctf/challenges/grpc/grpc-3/server.mjs:31"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/grpc-3/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "grpc-3 Stream Filter",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/grpc-3/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/grpc-3/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 9.3,
+      "severity": "Critical"
+    },
+    {
+      "id": "F-09",
+      "title": "Prototype pollution through settings patches grants admin",
+      "cwe": "CWE-1321",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+        "rationale": "Every connection gets a guest session. One patch containing __proto__ changes Object.prototype for the whole process, so every session's admin check passes."
+      },
+      "asvs": [
+        "V15.3.6"
+      ],
+      "soc2": [
+        "CC6.1",
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "merge() walks client-supplied patches recursively and copies every key, including __proto__, into the session settings. A patch with __proto__.isAdmin makes every object inherit isAdmin.",
+      "impact": "A guest reads admin secrets. The change persists for every user until the process restarts.",
+      "remediation": "Skip __proto__, constructor and prototype keys, and copy only own enumerable data. Better still, validate patches against a schema of known settings, or keep settings in a Map.",
+      "results": [
+        "protocol-ctf-exploits/ws-3@protocol-ctf/challenges/websockets/ws-3/server.mjs:10",
+        "eslint/secure-coding/detect-object-injection@protocol-ctf/challenges/websockets/ws-3/server.mjs:14"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/ws-3/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "ws-3 Merge Conflict",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/ws-3/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/ws-3/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 9.3,
+      "severity": "Critical"
+    },
+    {
+      "id": "F-05",
+      "title": "gRPC reflection exposes an unauthenticated internal service",
+      "cwe": "CWE-306",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "rationale": "Reflection lists every service on the public listener, including the internal ops service, which has no authentication. Its data can be read with one call."
+      },
+      "owasp": [
+        {
+          "list": "API Security Top 10 (2023)",
+          "id": "API9",
+          "name": "Improper Inventory Management"
+        },
+        {
+          "list": "Top 10:2025",
+          "id": "A02",
+          "name": "Security Misconfiguration"
+        }
+      ],
+      "soc2": [
+        "CC6.1",
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "The server registers the reflection service and an internal ops service on the same listener as the public catalog service. Reflection hands any client the internal service's schema, and the service checks no credentials.",
+      "impact": "Any client can find and call internal operations and read the data behind them.",
+      "remediation": "Serve internal services on a separate, non-public listener with authentication. Enable reflection only in development.",
+      "results": [
+        "protocol-ctf-exploits/grpc-2@protocol-ctf/challenges/grpc/grpc-2/server.mjs:56"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/grpc-2/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "grpc-2 Hidden Methods",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/grpc-2/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/grpc-2/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 8.7,
+      "severity": "High"
+    },
+    {
+      "id": "F-08",
+      "title": "WebSocket authenticates by Origin with an unanchored pattern",
+      "cwe": "CWE-1385",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "rationale": "A non-browser client sets any Origin header, and the trusted-origin pattern has no end anchor, so a lookalike host also matches. No session is needed to dump the live config."
+      },
+      "owasp": [
+        {
+          "list": "Top 10:2025",
+          "id": "A07",
+          "name": "Authentication Failures"
+        }
+      ],
+      "asvs": [
+        "V4.4.2"
+      ],
+      "soc2": [
+        "CC6.1",
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "The upgrade handler treats a request whose Origin matches the console pattern as authenticated, as if it had a session. Origin is set by the client, and the pattern matches any host that starts with the console origin.",
+      "impact": "Anyone can open the ops socket and read the full config, including the vault token.",
+      "remediation": "Require the session cookie for every socket. Compare Origin exactly against an allowlist only to stop cross-site hijacking, never as authentication.",
+      "results": [
+        "protocol-ctf-exploits/ws-2@protocol-ctf/challenges/websockets/ws-2/server.mjs:12"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/ws-2/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "ws-2 Origin Story",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/ws-2/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/ws-2/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 8.7,
+      "severity": "High"
+    },
+    {
+      "id": "F-07",
+      "title": "Any user can join any chat room",
+      "cwe": "CWE-639",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "rationale": "Needs the public guest login (PR:L). After that, one join message reads every message in the staff room."
+      },
+      "owasp": [
+        {
+          "list": "API Security Top 10 (2023)",
+          "id": "API1",
+          "name": "Broken Object Level Authorization"
+        },
+        {
+          "list": "Top 10:2025",
+          "id": "A01",
+          "name": "Broken Access Control"
+        }
+      ],
+      "asvs": [
+        "V8.2.2"
+      ],
+      "soc2": [
+        "CC6.1",
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "The join handler adds the requested room to the socket's subscriptions without checking it against the user's allowed rooms. The room list the server returns is only a hint.",
+      "impact": "A guest reads private staff conversations.",
+      "remediation": "Check every join, and every message to a room, against the authenticated user's membership on the server.",
+      "results": [
+        "protocol-ctf-exploits/ws-1@protocol-ctf/challenges/websockets/ws-1/server.mjs:44"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/ws-1/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "ws-1 Eavesdrop",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/ws-1/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/ws-1/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 7.1,
+      "severity": "High"
+    },
+    {
+      "id": "F-03",
+      "title": "Secret placed in the system prompt is leaked past keyword filters",
+      "cwe": "CWE-201",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "rationale": "Unauthenticated chat. Getting the code out depends on rephrasing past the input and output filters (AT:P). The leak is one discount code, a limited confidentiality impact (VC:L)."
+      },
+      "owasp": [
+        {
+          "list": "LLM Top 10 (2025)",
+          "id": "LLM07",
+          "name": "System Prompt Leakage"
+        },
+        {
+          "list": "LLM Top 10 (2025)",
+          "id": "LLM02",
+          "name": "Sensitive Information Disclosure"
+        }
+      ],
+      "soc2": [
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "The staff discount code is written into the system prompt. An input keyword denylist and an exact-match output check are the only protection, and both are bypassed by rephrasing and by asking for the code in a transformed form.",
+      "impact": "Any customer can get a 100%-off staff code.",
+      "remediation": "Keep secrets out of prompts. Check the code server-side, where the model can't reach it, and don't rely on keyword filters as a control.",
+      "results": [
+        "protocol-ctf-exploits/ai-3@protocol-ctf/challenges/ai-agents/ai-3/server.mjs:11"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/ai-3/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "ai-3 Leaky Prompt",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/ai-3/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/ai-3/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 6.3,
+      "severity": "Medium"
+    },
+    {
+      "id": "F-02",
+      "title": "Indirect prompt injection drives an over-privileged agent to leak a vault secret",
+      "cwe": "CWE-1427",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:H/VI:L/VA:N/SC:N/SI:N/SA:N",
+        "rationale": "Any board user can post a note, and the agent processes it with no further interaction. Success depends on the model following the injected instruction (AT:P). The agent can read the vault (VC:H) and publish to the public digest (VI:L)."
+      },
+      "owasp": [
+        {
+          "list": "LLM Top 10 (2025)",
+          "id": "LLM01",
+          "name": "Prompt Injection"
+        },
+        {
+          "list": "LLM Top 10 (2025)",
+          "id": "LLM06",
+          "name": "Excessive Agency"
+        }
+      ],
+      "soc2": [
+        "CC6.1",
+        "CC7.1",
+        "CC8.1"
+      ],
+      "description": "The digest agent reads every new note and has every tool: read_vault, post_digest and http_get. Text in a note can tell it to read a vault entry and publish it. The system prompt says to ignore instructions inside untrusted tags, but that isn't a control.",
+      "impact": "Any user who can post a note can read any vault secret through the public digest.",
+      "remediation": "Give the digest agent only post_digest. Keep vault access out of any agent that reads untrusted content, and treat model output as untrusted before it reaches a tool.",
+      "results": [
+        "protocol-ctf-exploits/ai-2@protocol-ctf/challenges/ai-agents/ai-2/server.mjs:17"
+      ],
+      "status": "retested",
+      "fix": {
+        "commit": "30c386a",
+        "path": "protocol-ctf/solutions/ai-2/fixed-server.mjs"
+      },
+      "retest": {
+        "date": "2026-11-26",
+        "result": "pass",
+        "section": "ai-2 Poisoned Note",
+        "expect": "fixed: exploit is blocked"
+      },
+      "reproduction": {
+        "exploit": "protocol-ctf/solutions/ai-2/exploit.mjs",
+        "negative control": "protocol-ctf/solutions/ai-2/control.mjs",
+        "retest": "npm --prefix protocol-ctf run verify"
+      },
+      "score": 6,
+      "severity": "Medium"
+    },
+    {
+      "id": "F-10",
+      "title": "Password checked with a non-constant-time comparison",
+      "cwe": "CWE-208",
+      "cvss": {
+        "vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:U",
+        "rationale": "Recovering a password from response timing over a network needs many samples and low jitter (AC:H, AT:P). The leak is partial (VC:L). Not exploited in this engagement, and no public exploit is known (E:U)."
+      },
+      "owasp": [
+        {
+          "list": "Top 10:2025",
+          "id": "A07",
+          "name": "Authentication Failures"
+        }
+      ],
+      "soc2": [
+        "CC7.1"
+      ],
+      "status": "open",
+      "description": "Login compares the submitted password to the stored one with !==, which returns as soon as a character differs. The passwords are also stored in plaintext. The reference fix for F-07 doesn't change this.",
+      "impact": "In theory, response timing reveals how much of a guess is right. In this lab the plaintext storage matters more.",
+      "remediation": "Store a salted password hash (scrypt or argon2) and compare with crypto.timingSafeEqual.",
+      "results": [
+        "eslint/secure-coding/no-insecure-comparison@protocol-ctf/challenges/websockets/ws-1/server.mjs:31"
+      ],
+      "score": 1.7,
+      "severity": "Low"
+    }
+  ],
+  "triage": {
+    "eslint/node-security/require-secure-credential-storage@protocol-ctf/challenges/ai-agents/ai-1/server.mjs:12": {
+      "verdict": "out-of-scope",
+      "reason": "Lab fixture: the server puts its own API token in process.env on purpose, so F-01's exploit has something to steal. Real deployments get secrets from a secret store."
+    },
+    "eslint/secure-coding/no-hardcoded-credentials@protocol-ctf/challenges/websockets/ws-1/server.mjs:8": {
+      "verdict": "out-of-scope",
+      "reason": "The public guest/guest account is the lab's intended entry point. The documented, low-privilege demo login is by design."
+    },
+    "eslint/secure-coding/no-improper-sanitization@protocol-ctf/challenges/websockets/ws-2/server.mjs:36": {
+      "verdict": "false-positive",
+      "reason": "JSON sent over a WebSocket is not an HTML output sink. The real problem on this line, client-chosen config keys, is covered by F-08. Reported to the plugin."
+    }
+  },
+  "inputs": {
+    "results.sarif": "3f7a5436afbc478630092fa15d758876bdf6645ccb05b8fbd387765336939c0d",
+    "engagement.json": "e958ccc851950aa154232ce045247911ca1d8ac2304d138f72b9c0ae34737cef",
+    "findings.json": "c225010b86d3c798bb21c8331ae71f34800015516f2b7a2e3b8629a61658caaa",
+    "verify.log": "b001b08b070f61ff21679d050fd575c87255562a59e43d0bb35aec64d75f954a"
+  }
+}

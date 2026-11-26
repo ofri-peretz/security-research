@@ -2,3 +2,9 @@ package-lock.json
 protocol-ctf/package-lock.json
 # The labs predate the formatter. Formatting them is its own PR, not a side effect of another.
 protocol-ctf/
+# Vendored upstream files and generated data stay byte-identical.
+report/vendor/
+report/data/
+report/test/cvss-oracle.json
+report/dogfood/out/
+report/dogfood/results.sarif

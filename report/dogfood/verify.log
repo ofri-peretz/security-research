@@ -1,0 +1,66 @@
+
+ws-1 Eavesdrop
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+ws-2 Origin Story
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+ws-3 Merge Conflict
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+grpc-1 Trust the Gateway
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+grpc-2 Hidden Methods
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+grpc-3 Stream Filter
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+ai-1 Tool Time
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+ai-2 Poisoned Note
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+ai-3 Leaky Prompt
+  PASS  vulnerable: functional check passes
+  PASS  vulnerable: negative control is denied
+  PASS  vulnerable: exploit returns the flag
+  PASS  fixed: functional check passes
+  PASS  fixed: exploit is blocked
+
+All checks passed
+

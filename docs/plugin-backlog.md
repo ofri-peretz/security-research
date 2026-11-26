@@ -17,6 +17,33 @@ Versions: `node-security@6.3.2`, `secure-coding@6.5.1`, `mcp-sdk-security@2.1.5`
 | ws-1   | No per-message membership check in a `ws` message handler         | CWE-639  |
 | ws-2   | Origin header used as authentication; allowlist regex without `$` | CWE-1385 |
 
+## Real-world recall: known CVEs our plugins miss
+
+Found by `npm run hunt` on published packages with a public, fixed advisory. These are
+the most valuable gaps, because each is a real bug that shipped.
+
+| Package             | Advisory      | Root cause                                                                                                                                                                                                 | What fired at the sink               |
+| ------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `mcp-remote@0.1.15` | CVE-2025-6514 | The OAuth `authorization_endpoint` from a remote MCP server reaches the `open` package (`open(sanitizeUrl(authorizationUrl))`, bundled `dist/chunk-*.js:13835`), which launches it through the OS (CWE-78) | Nothing, under recommended or strict |
+
+Suggested rule (mcp-sdk-security or node-security): a URL from a network response or remote
+metadata passed to `open` / `child_process` / `shell.openExternal` without a scheme
+allowlist (`https:` only).
+
+## Precision in the default config
+
+The 2026-11-26 hunt of `mcp-remote@0.1.15`:
+
+- **`strict`:** 371 hits. 146 `no-improper-type-validation`, 85 `no-insecure-comparison`
+  (`==`), 77 `detect-object-injection`. Almost all of these are in bundled dependencies.
+  `recommended` gives 34, so hunting defaults to `recommended`.
+- **`secure-coding/no-graphql-injection`, in recommended: 30 false positives.** It fires on
+  ajv's code generator, which builds JavaScript by string concatenation (for example
+  `out += " { keyword: '" + ...` at `dist/chunk-*.js:1733`). The file has no GraphQL at all
+  (the word "graphql" appears 0 times). This is the highest-priority precision bug found so far,
+  because it's in the config users get by default. Fix: require a GraphQL client, a `gql`
+  tag, or a query-shaped string (`query`/`mutation` + a selection set) before reporting.
+
 ## False positives
 
 | Rule                                        | Where                                                   | What the rule misses                                       | Status                                          |

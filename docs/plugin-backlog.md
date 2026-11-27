@@ -46,6 +46,10 @@ Each catches something static analysis can see. See [standards/ai-mcp-assessment
 
 ## Precision in the default config
 
+> **Fixed in `eslint-plugin-secure-coding@6.5.5`** (ofri-peretz/eslint#1828). Re-hunting
+> `mcp-remote@0.1.15` under recommended now gives 4 hits instead of 34; the 30
+> `no-graphql-injection` false positives on ajv's code generator are gone.
+
 The 2026-11-26 hunt of `mcp-remote@0.1.15`:
 
 - **`strict`:** 371 hits. 146 `no-improper-type-validation`, 85 `no-insecure-comparison`
